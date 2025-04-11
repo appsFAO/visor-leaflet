@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Visor Leaflet con GeoServer Local</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+  var map = L.map('map').setView([9.7489, -83.7534], 7); // Costa Rica
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Capa WMS desde GeoServer local
+  var wmsLayer = L.tileLayer.wms("http://localhost:8080/geoserver/tu_workspace/wms", {
+    layers: 'tu_workspace:tu_capa', // Cambia esto
+    format: 'image/png',
+    transparent: true,
+    attribution: "GeoServer local"
+  }).addTo(map);
+</script>
+
+</body>
+</html>
