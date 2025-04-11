@@ -7,7 +7,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Cargar capa GeoJSON desde GitHub
-fetch('datos/capa.geojson')
+fetch('datos/Centroamerica.geojson')
   .then(res => res.json())
   .then(data => {
     L.geoJSON(data).addTo(map);
