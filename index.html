@@ -59,7 +59,7 @@
     .then(data => munis.addData(data))
     .catch(err => console.error('Error cargando Municipalidades:', err));
 
-  fetch('datos/HN/Areas_Protegidas_ICF.geojson')
+  fetch('datos/Honduras/Areas_Protegidas_ICF.geojson')
     .then(res => res.json())
     .then(data => {
       areasICF.addData(data);
@@ -76,7 +76,7 @@
   var overlays = {
     "Centroamérica": centroamerica,
     "Municipalidades": munis,
-    "Áreas Protegidas ICF - Honduras": areasICF
+    "Áreas Protegidas ICF - HN": areasICF
   };
 
   L.control.layers(null, overlays).addTo(map);
