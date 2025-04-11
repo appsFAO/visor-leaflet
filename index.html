@@ -1,43 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visor Leaflet - Centroamérica</title>
+  <title>Visor Leaflet - Centroamérica Completo</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
     #map { height: 100vh; }
-    #boton-honduras {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: white;
-      border: 1px solid #ccc;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 14px;
-      z-index: 1000;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    }
-    #boton-honduras:hover {
-      background: #f0f0f0;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
-<a id="boton-honduras" href="Honduras/index.html" target="_blank">Ir al visor de Honduras</a>
 <div id="map"></div>
 
 <script>
-  var map = L.map('map').setView([13.5, -85], 5.5);
+  var map = L.map('map').setView([13.5, -85], 6);
 
+  // Capa base
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
+    maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
+  // Función genérica para popups
   function popupGenerico(feature, layer) {
     let props = feature.properties;
     let contenido = '';
@@ -47,6 +32,7 @@
     layer.bindPopup(contenido);
   }
 
+  // Crear capas vacías
   var centroamerica = L.geoJSON(null, {
     style: { color: 'blue' },
     onEachFeature: popupGenerico
@@ -57,6 +43,12 @@
     onEachFeature: popupGenerico
   });
 
+  var areasICF = L.geoJSON(null, {
+    style: { color: 'green' },
+    onEachFeature: popupGenerico
+  });
+
+  // Cargar datos
   fetch('datos/Centroamerica.geojson')
     .then(res => res.json())
     .then(data => centroamerica.addData(data))
@@ -65,14 +57,23 @@
   fetch('datos/Munis.geojson')
     .then(res => res.json())
     .then(data => munis.addData(data))
-    .catch(err => console.error('Error cargando Municipalidades:', err));
+    .catch(err => console.error('Error cargando Munis:', err));
 
+  fetch('datos/HN/Areas_Protegidas_ICF.geojson')
+    .then(res => res.json())
+    .then(data => areasICF.addData(data))
+    .catch(err => console.error('Error cargando Áreas Protegidas ICF:', err));
+
+  // Agregar al mapa
   centroamerica.addTo(map);
   munis.addTo(map);
+  areasICF.addTo(map);
 
+  // Control de capas
   var overlays = {
     "Centroamérica": centroamerica,
-    "Municipalidades": munis
+    "Municipalidades": munis,
+    "Áreas Protegidas ICF - Honduras": areasICF
   };
 
   L.control.layers(null, overlays).addTo(map);
