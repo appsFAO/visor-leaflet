@@ -22,7 +22,7 @@
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Función genérica para popups
+  // Función para popups
   function popupGenerico(feature, layer) {
     let props = feature.properties;
     let contenido = '';
@@ -32,23 +32,23 @@
     layer.bindPopup(contenido);
   }
 
-  // Crear capas vacías
+  // Capas vacías
   var centroamerica = L.geoJSON(null, {
-    style: { color: 'blue' },
+    style: { color: 'blue', weight: 2 },
     onEachFeature: popupGenerico
   });
 
   var munis = L.geoJSON(null, {
-    style: { color: 'purple' },
+    style: { color: 'purple', weight: 2 },
     onEachFeature: popupGenerico
   });
 
   var areasICF = L.geoJSON(null, {
-    style: { color: 'green' },
+    style: { color: 'green', weight: 2, fillOpacity: 0.3 },
     onEachFeature: popupGenerico
   });
 
-  // Cargar datos
+  // Cargar capas
   fetch('datos/Centroamerica.geojson')
     .then(res => res.json())
     .then(data => centroamerica.addData(data))
@@ -57,11 +57,14 @@
   fetch('datos/Munis.geojson')
     .then(res => res.json())
     .then(data => munis.addData(data))
-    .catch(err => console.error('Error cargando Munis:', err));
+    .catch(err => console.error('Error cargando Municipalidades:', err));
 
   fetch('datos/HN/Areas_Protegidas_ICF.geojson')
     .then(res => res.json())
-    .then(data => areasICF.addData(data))
+    .then(data => {
+      areasICF.addData(data);
+      map.fitBounds(areasICF.getBounds()); // centrar en la capa
+    })
     .catch(err => console.error('Error cargando Áreas Protegidas ICF:', err));
 
   // Agregar al mapa
@@ -69,7 +72,7 @@
   munis.addTo(map);
   areasICF.addTo(map);
 
-  // Control de capas
+  // Selector de capas
   var overlays = {
     "Centroamérica": centroamerica,
     "Municipalidades": munis,
@@ -78,11 +81,6 @@
 
   L.control.layers(null, overlays).addTo(map);
 </script>
-
-</body>
-</html>
-
-
 
 </body>
 </html>
