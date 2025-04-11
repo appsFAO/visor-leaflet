@@ -8,22 +8,36 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
     #map { height: 100vh; }
+    #boton-honduras {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 1000;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    #boton-honduras:hover {
+      background: #f0f0f0;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+<a id="boton-honduras" href="Honduras/index.html" target="_blank">Ir al visor de Honduras</a>
 <div id="map"></div>
 
 <script>
-  // Inicializar mapa centrado en Centroamérica
   var map = L.map('map').setView([13.5, -85], 5.5);
 
-  // Capa base
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Popup genérico
   function popupGenerico(feature, layer) {
     let props = feature.properties;
     let contenido = '';
@@ -33,7 +47,6 @@
     layer.bindPopup(contenido);
   }
 
-  // Crear capas vacías
   var centroamerica = L.geoJSON(null, {
     style: { color: 'blue' },
     onEachFeature: popupGenerico
@@ -44,12 +57,6 @@
     onEachFeature: popupGenerico
   });
 
-  var areasHN = L.geoJSON(null, {
-    style: { color: 'green' },
-    onEachFeature: popupGenerico
-  });
-
-  // Cargar capas desde distintas ubicaciones
   fetch('datos/Centroamerica.geojson')
     .then(res => res.json())
     .then(data => centroamerica.addData(data))
@@ -60,21 +67,12 @@
     .then(data => munis.addData(data))
     .catch(err => console.error('Error cargando Municipalidades:', err));
 
-  fetch('datos/Honduras/Areas_Protegidas_ICF.geojson')
-    .then(res => res.json())
-    .then(data => areasHN.addData(data))
-    .catch(err => console.error('Error cargando Áreas Protegidas Honduras:', err));
-
-  // Agregar al mapa
   centroamerica.addTo(map);
   munis.addTo(map);
-  areasHN.addTo(map);
 
-  // Control de capas
   var overlays = {
     "Centroamérica": centroamerica,
-    "Municipalidades": munis,
-    "Áreas Protegidas - Honduras": areasHN
+    "Municipalidades": munis
   };
 
   L.control.layers(null, overlays).addTo(map);
@@ -82,6 +80,7 @@
 
 </body>
 </html>
+
 
 
 </body>
