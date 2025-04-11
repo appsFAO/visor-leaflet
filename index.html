@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visor Leaflet + Centroamérica y Municipalidades</title>
+  <title>Visor Leaflet por País</title>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
@@ -13,61 +14,45 @@
 <div id="map"></div>
 
 <script>
-  // Inicializar mapa centrado en Centroamérica
-  var map = L.map('map').setView([13.5, -85], 5.5);
+  // Inicializar mapa
+  var map = L.map('map').setView([14.5, -87], 7); // Centrado en Honduras
 
-  // Capa base
+  // Capa base OSM
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
+    maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Crear grupos de capas vacíos
-  var capaCentroamerica = L.geoJSON(null, {
-    onEachFeature: function (feature, layer) {
-      let props = feature.properties;
-      let contenido = '';
-      for (let key in props) {
-        contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
-      }
-      layer.bindPopup(contenido);
+  // Función genérica de popup
+  function popupGenerico(feature, layer) {
+    let props = feature.properties;
+    let contenido = '';
+    for (let key in props) {
+      contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
     }
+    layer.bindPopup(contenido);
+  }
+
+  // Crear capa vacía
+  var areasHN = L.geoJSON(null, {
+    style: { color: 'green' },
+    onEachFeature: popupGenerico
   });
 
-  var capaMunis = L.geoJSON(null, {
-    style: { color: 'purple' },
-    onEachFeature: function (feature, layer) {
-      let props = feature.properties;
-      let contenido = '';
-      for (let key in props) {
-        contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
-      }
-      layer.bindPopup(contenido);
-    }
-  });
-
-  // Cargar los datos GeoJSON
-  fetch('datos/Centroamerica.geojson')
+  // Cargar GeoJSON desde carpeta HN
+  fetch('datos/HN/Areas_Protegidas_ICF.geojson')
     .then(res => res.json())
-    .then(data => capaCentroamerica.addData(data))
-    .catch(err => console.error('Error cargando Centroamérica:', err));
+    .then(data => areasHN.addData(data))
+    .catch(err => console.error('Error cargando áreas protegidas Honduras:', err));
 
-  fetch('datos/Munis.geojson')
-    .then(res => res.json())
-    .then(data => capaMunis.addData(data))
-    .catch(err => console.error('Error cargando Munis:', err));
-
-  // Agregar ambas al mapa por defecto (opcional)
-  capaCentroamerica.addTo(map);
-  capaMunis.addTo(map);
+  // Agregar al mapa por defecto
+  areasHN.addTo(map);
 
   // Control de capas
-  var capasOverlay = {
-    "Centroamérica": capaCentroamerica,
-    "Municipalidades": capaMunis
+  var overlays = {
+    "Áreas Protegidas - Honduras": areasHN
   };
-
-  L.control.layers(null, capasOverlay).addTo(map);
+  L.control.layers(null, overlays).addTo(map);
 </script>
 
 </body>
