@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visor Leaflet + Centroamérica</title>
+  <title>Visor Leaflet + Centroamérica y Municipalidades</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -22,24 +22,56 @@
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Cargar GeoJSON y mostrar popups
+  // Crear grupos de capas vacíos
+  var capaCentroamerica = L.geoJSON(null, {
+    onEachFeature: function (feature, layer) {
+      let props = feature.properties;
+      let contenido = '';
+      for (let key in props) {
+        contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
+      }
+      layer.bindPopup(contenido);
+    }
+  });
+
+  var capaMunis = L.geoJSON(null, {
+    style: { color: 'purple' },
+    onEachFeature: function (feature, layer) {
+      let props = feature.properties;
+      let contenido = '';
+      for (let key in props) {
+        contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
+      }
+      layer.bindPopup(contenido);
+    }
+  });
+
+  // Cargar los datos GeoJSON
   fetch('datos/Centroamerica.geojson')
     .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        onEachFeature: function (feature, layer) {
-          // Mostrar propiedades como popup
-          let props = feature.properties;
-          let contenido = '';
-          for (let key in props) {
-            contenido += `<strong>${key}:</strong> ${props[key]}<br>`;
-          }
-          layer.bindPopup(contenido);
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
+    .then(data => capaCentroamerica.addData(data))
+    .catch(err => console.error('Error cargando Centroamérica:', err));
+
+  fetch('datos/Munis.geojson')
+    .then(res => res.json())
+    .then(data => capaMunis.addData(data))
+    .catch(err => console.error('Error cargando Munis:', err));
+
+  // Agregar ambas al mapa por defecto (opcional)
+  capaCentroamerica.addTo(map);
+  capaMunis.addTo(map);
+
+  // Control de capas
+  var capasOverlay = {
+    "Centroamérica": capaCentroamerica,
+    "Municipalidades": capaMunis
+  };
+
+  L.control.layers(null, capasOverlay).addTo(map);
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
