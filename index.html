@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visor Leaflet por País</title>
+  <title>Visor Leaflet - Centroamérica</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -14,16 +14,16 @@
 <div id="map"></div>
 
 <script>
-  // Inicializar mapa
-  var map = L.map('map').setView([14.5, -87], 7); // Centrado en Honduras
+  // Inicializar mapa centrado en Centroamérica
+  var map = L.map('map').setView([13.5, -85], 5.5);
 
-  // Capa base OSM
+  // Capa base
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+    maxZoom: 18,
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Función genérica de popup
+  // Popup genérico
   function popupGenerico(feature, layer) {
     let props = feature.properties;
     let contenido = '';
@@ -33,30 +33,56 @@
     layer.bindPopup(contenido);
   }
 
-  // Crear capa vacía
+  // Crear capas vacías
+  var centroamerica = L.geoJSON(null, {
+    style: { color: 'blue' },
+    onEachFeature: popupGenerico
+  });
+
+  var munis = L.geoJSON(null, {
+    style: { color: 'purple' },
+    onEachFeature: popupGenerico
+  });
+
   var areasHN = L.geoJSON(null, {
     style: { color: 'green' },
     onEachFeature: popupGenerico
   });
 
-  // Cargar GeoJSON desde carpeta HN
-  fetch('datos/HN/Areas_Protegidas_ICF.geojson')
+  // Cargar capas desde distintas ubicaciones
+  fetch('datos/Centroamerica.geojson')
+    .then(res => res.json())
+    .then(data => centroamerica.addData(data))
+    .catch(err => console.error('Error cargando Centroamérica:', err));
+
+  fetch('datos/Munis.geojson')
+    .then(res => res.json())
+    .then(data => munis.addData(data))
+    .catch(err => console.error('Error cargando Municipalidades:', err));
+
+  fetch('datos/Honduras/Areas_Protegidas_ICF.geojson')
     .then(res => res.json())
     .then(data => areasHN.addData(data))
-    .catch(err => console.error('Error cargando áreas protegidas Honduras:', err));
+    .catch(err => console.error('Error cargando Áreas Protegidas Honduras:', err));
 
-  // Agregar al mapa por defecto
+  // Agregar al mapa
+  centroamerica.addTo(map);
+  munis.addTo(map);
   areasHN.addTo(map);
 
   // Control de capas
   var overlays = {
+    "Centroamérica": centroamerica,
+    "Municipalidades": munis,
     "Áreas Protegidas - Honduras": areasHN
   };
+
   L.control.layers(null, overlays).addTo(map);
 </script>
 
 </body>
 </html>
+
 
 </body>
 </html>
